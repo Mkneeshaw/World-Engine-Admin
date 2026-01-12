@@ -72,7 +72,7 @@ export interface TopPlayer {
 }
 
 export interface HourlyActivity {
-  hour: string;
+  timestamp: string;
   activePlayers: number;
   newSessions: number;
 }

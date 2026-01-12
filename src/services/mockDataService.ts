@@ -1,4 +1,4 @@
-import {
+import type {
   WorldSimulationMetrics,
   PlayerMetrics,
   ServerMetrics,
@@ -102,7 +102,7 @@ export const mockDataService = {
       const hour = new Date();
       hour.setHours(i, 0, 0, 0);
       return {
-        hour: hour.toISOString(),
+        timestamp: hour.toISOString(),
         activePlayers: random(50, 300),
         newSessions: random(20, 100),
       };

@@ -15,19 +15,6 @@ export function OverviewPage() {
     return `${days}d ${hours}h`;
   };
 
-  const getStatusColor = (status: string): 'green' | 'yellow' | 'red' => {
-    switch (status) {
-      case 'healthy':
-        return 'green';
-      case 'warning':
-        return 'yellow';
-      case 'critical':
-        return 'red';
-      default:
-        return 'green';
-    }
-  };
-
   const getStatusText = (status: string): string => {
     switch (status) {
       case 'healthy':

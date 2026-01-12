@@ -33,7 +33,7 @@ Deploy TitanSaga Admin Panel to Vercel.
    In Vercel project settings, add these environment variables:
 
    ```env
-   VITE_API_BASE_URL=https://your-production-api.com
+   VITE_API_BASE_URL=https://world-engine-server.onrender.com
    VITE_API_V1_PREFIX=/api/v1
    VITE_ENV=production
    VITE_DEBUG=false
@@ -105,7 +105,7 @@ Already configured with:
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `VITE_API_BASE_URL` | Your backend API URL | `https://api.titansaga.com` |
+| `VITE_API_BASE_URL` | Your backend API URL | `https://world-engine-server.onrender.com` |
 | `VITE_API_V1_PREFIX` | API version prefix | `/api/v1` |
 | `VITE_ENV` | Environment name | `production` |
 | `VITE_DEBUG` | Enable debug logging | `false` |
@@ -220,7 +220,7 @@ VITE_DEBUG=true
 
 ### Production (Vercel)
 ```env
-VITE_API_BASE_URL=https://api.yourdomain.com
+VITE_API_BASE_URL=https://world-engine-server.onrender.com
 VITE_DEBUG=false
 ```
 
