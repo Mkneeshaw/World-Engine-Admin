@@ -3,9 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 interface HeaderProps {
   showExportButton?: boolean;
   onExportCSV?: () => void;
+  onLogout?: () => void;
 }
 
-export function Header({ showExportButton = false, onExportCSV }: HeaderProps) {
+export function Header({ showExportButton = false, onExportCSV, onLogout }: HeaderProps) {
   // Track if any query is fetching for the live indicator
   const { isFetching: metricsFetching } = useQuery({
     queryKey: ['metrics-overview'],
@@ -13,8 +14,14 @@ export function Header({ showExportButton = false, onExportCSV }: HeaderProps) {
   });
 
   const handleLogout = () => {
-    localStorage.removeItem('titan_admin_token');
-    window.location.href = '/login';
+    if (onLogout) {
+      onLogout();
+    } else {
+      // Fallback
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user');
+      window.location.reload();
+    }
   };
 
   return (

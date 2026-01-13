@@ -9,20 +9,14 @@ export function OverviewPage() {
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
-  const formatUptime = (seconds: number): string => {
-    const days = Math.floor(seconds / 86400);
-    const hours = Math.floor((seconds % 86400) / 3600);
-    return `${days}d ${hours}h`;
-  };
-
   const getStatusText = (status: string): string => {
     switch (status) {
       case 'healthy':
-        return 'All Systems Operational';
+        return 'Simulation Running Smoothly';
       case 'warning':
-        return 'Performance Degraded';
+        return 'Minor Issues Detected';
       case 'critical':
-        return 'Critical Issues Detected';
+        return 'Critical Simulation Issues';
       default:
         return 'Unknown Status';
     }
@@ -65,14 +59,17 @@ export function OverviewPage() {
                   {getStatusText(overview.systemStatus)}
                 </h2>
                 <p className="text-sm text-gray-400 mt-1">
-                  Last updated: {new Date().toLocaleTimeString()}
+                  {overview.world.date.formatted} • Tick #{overview.simulation.currentTick.toLocaleString()}
                 </p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-400">Server Uptime</p>
+              <p className="text-sm text-gray-400">Simulation Speed</p>
               <p className="text-2xl font-bold text-white">
-                {formatUptime(overview.server.uptime)}
+                {overview.simulation.tickRate.toFixed(1)} tps
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {overview.simulation.fps} FPS
               </p>
             </div>
           </div>
@@ -96,13 +93,13 @@ export function OverviewPage() {
               d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          World Simulation
+          World State
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <MetricsCard
             title="Total Population"
             value={overview?.world.population.toLocaleString() || '0'}
-            subtitle="Across all regions"
+            subtitle="Across all cities"
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -123,9 +120,9 @@ export function OverviewPage() {
             color="purple"
           />
           <MetricsCard
-            title="Active Regions"
-            value={overview?.world.activeRegions || '0'}
-            subtitle={`${overview?.world.recentEvents || 0} recent events`}
+            title="Cities"
+            value={overview?.world.totalCities || '0'}
+            subtitle={`${overview?.world.activeRegions || 0} regions`}
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -138,7 +135,7 @@ export function OverviewPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                 />
               </svg>
             }
@@ -146,262 +143,9 @@ export function OverviewPage() {
             color="cyan"
           />
           <MetricsCard
-            title="Recent Events"
-            value={overview?.world.recentEvents || '0'}
-            subtitle="Last 24 hours"
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-            }
-            loading={isLoading}
-            color="yellow"
-          />
-        </div>
-      </div>
-
-      {/* Player Metrics */}
-      <div>
-        <h2 className="text-xl font-semibold text-white mb-4 flex items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 mr-2 text-titan-blue"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-            />
-          </svg>
-          Player Activity
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <MetricsCard
-            title="Active Players"
-            value={overview?.players.active || '0'}
-            subtitle={`${overview?.players.sessions || 0} active sessions`}
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            }
-            loading={isLoading}
-            color="blue"
-          />
-          <MetricsCard
-            title="Total Sessions"
-            value={overview?.players.sessions || '0'}
-            subtitle="Currently active"
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-            }
-            loading={isLoading}
-            color="green"
-          />
-          <MetricsCard
-            title="Avg Session Duration"
-            value={`${overview?.players.avgSessionDuration || 0}m`}
-            subtitle="Per player"
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            }
-            loading={isLoading}
-            color="purple"
-          />
-        </div>
-      </div>
-
-      {/* Server Performance */}
-      <div>
-        <h2 className="text-xl font-semibold text-white mb-4 flex items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 mr-2 text-titan-emerald"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"
-            />
-          </svg>
-          Server Performance
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <MetricsCard
-            title="Request Rate"
-            value={`${overview?.server.requestRate || 0}/h`}
-            subtitle="Requests per hour"
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                />
-              </svg>
-            }
-            loading={isLoading}
-            color="cyan"
-          />
-          <MetricsCard
-            title="Error Rate"
-            value={`${overview?.server.errorRate.toFixed(2) || 0}%`}
-            subtitle="Failed requests"
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            }
-            loading={isLoading}
-            color="red"
-          />
-          <MetricsCard
-            title="Avg Response Time"
-            value={`${overview?.server.avgResponseTime || 0}ms`}
-            subtitle="Server latency"
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-            }
-            loading={isLoading}
-            color="yellow"
-          />
-          <MetricsCard
-            title="Uptime"
-            value={overview ? formatUptime(overview.server.uptime) : '0d 0h'}
-            subtitle="Since last restart"
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            }
-            loading={isLoading}
-            color="green"
-          />
-        </div>
-      </div>
-
-      {/* Battle Stats */}
-      <div>
-        <h2 className="text-xl font-semibold text-white mb-4 flex items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 mr-2 text-titan-amber"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-            />
-          </svg>
-          Battle System
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <MetricsCard
-            title="Total Battles"
-            value={overview?.battles.total.toLocaleString() || '0'}
-            subtitle="All time"
+            title="Factions"
+            value={overview?.world.totalFactions || '0'}
+            subtitle="Active powers"
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -419,12 +163,173 @@ export function OverviewPage() {
               </svg>
             }
             loading={isLoading}
-            color="red"
+            color="blue"
           />
           <MetricsCard
-            title="Active Battles"
-            value={overview?.battles.active || '0'}
-            subtitle="Currently ongoing"
+            title="Active Regions"
+            value={overview?.world.activeRegions || '0'}
+            subtitle="Populated areas"
+            icon={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                />
+              </svg>
+            }
+            loading={isLoading}
+            color="green"
+          />
+        </div>
+      </div>
+
+      {/* Economy Metrics */}
+      <div>
+        <h2 className="text-xl font-semibold text-white mb-4 flex items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 mr-2 text-titan-amber"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          Economic Health
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <MetricsCard
+            title="Total Wealth"
+            value={`${(overview?.economy.totalWealth || 0).toLocaleString()}g`}
+            subtitle="Across all entities"
+            icon={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+            }
+            loading={isLoading}
+            color="yellow"
+          />
+          <MetricsCard
+            title="Trade Volume"
+            value={`${(overview?.economy.tradeVolume24h || 0).toLocaleString()}g`}
+            subtitle="Last 24 hours"
+            icon={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                />
+              </svg>
+            }
+            loading={isLoading}
+            color="green"
+          />
+          <MetricsCard
+            title="Economic Health"
+            value={`${overview?.economy.economicHealth || 0}%`}
+            subtitle="Overall stability"
+            icon={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                />
+              </svg>
+            }
+            loading={isLoading}
+            color="blue"
+          />
+          <MetricsCard
+            title="Critical Shortages"
+            value={overview?.economy.criticalShortages || '0'}
+            subtitle="Resources in crisis"
+            icon={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            }
+            loading={isLoading}
+            color="red"
+          />
+        </div>
+      </div>
+
+      {/* Conflicts & Diplomacy */}
+      <div>
+        <h2 className="text-xl font-semibold text-white mb-4 flex items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 mr-2 text-red-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+            />
+          </svg>
+          Conflicts & Diplomacy
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <MetricsCard
+            title="Active Wars"
+            value={overview?.conflicts.activeWars || '0'}
+            subtitle="Ongoing conflicts"
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -442,12 +347,12 @@ export function OverviewPage() {
               </svg>
             }
             loading={isLoading}
-            color="yellow"
+            color="red"
           />
           <MetricsCard
-            title="Win Rate"
-            value={`${overview?.battles.winRate.toFixed(1) || 0}%`}
-            subtitle="Player victories"
+            title="Tense Relations"
+            value={overview?.conflicts.tenseDiplomacy || '0'}
+            subtitle="Diplomatic tensions"
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -460,7 +365,30 @@ export function OverviewPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            }
+            loading={isLoading}
+            color="yellow"
+          />
+          <MetricsCard
+            title="Recent Treaties"
+            value={overview?.conflicts.recentTreaties || '0'}
+            subtitle="Past 7 days"
+            icon={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
             }
