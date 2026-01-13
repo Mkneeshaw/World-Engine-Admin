@@ -111,6 +111,42 @@ export interface FactionMetrics {
   activeConflicts: Conflict[];
   recentTreaties: DiplomaticEvent[];
   relationshipMatrix: FactionRelationship[];
+  // Battle-related metrics
+  totalBattles: number;
+  activeBattles: number;
+  playerVictories: number;
+  averageDuration: number; // seconds
+  damageDistribution: {
+    physical: number;
+    magical: number;
+    elemental: number;
+    true: number;
+    total: number;
+  };
+  battlesByType: Array<{
+    type: string;
+    count: number;
+    winRate: number;
+    averageDuration: number;
+  }>;
+  skillUsage: Array<{
+    skillName: string;
+    uses: number;
+    usageCount: number;
+    averageDamage: number;
+    hitRate: number;
+  }>;
+  recentBattles: Array<{
+    id: string;
+    type: string;
+    participants: string[];
+    winner: string;
+    location: string;
+    outcome: string;
+    duration: number;
+    totalDamage: number;
+    timestamp: string;
+  }>;
 }
 
 export interface Faction {
@@ -332,6 +368,37 @@ export interface CharacterMetrics {
   reputationLeaders: ReputationLeader[];
   wealthDistribution: WealthBracket[];
   questActivity: QuestActivity;
+  // Player activity metrics
+  activePlayers: number;
+  totalSessions: number;
+  newPlayers: number;
+  averageSessionDuration: number; // minutes
+  topPlayers: Array<{
+    username: string;
+    characterName: string;
+    level: number;
+    playtime: number;
+    achievements: number;
+    lastSeen: string;
+  }>;
+  activityByHour: Array<{
+    hour: string;
+    timestamp: string;
+    activePlayers: number;
+    newSessions: number;
+  }>;
+  recentSessions: Array<{
+    id: string;
+    username: string;
+    character: string;
+    characterName: string;
+    level: number;
+    region: string;
+    loginTime: string;
+    duration: number;
+    actions: number;
+    status: string;
+  }>;
 }
 
 export interface LevelDistribution {
@@ -398,6 +465,43 @@ export interface SimulationPerformance {
   systemLoad: SystemLoad;
   performanceMetrics: PerformanceMetrics;
   bottlenecks: Bottleneck[];
+  // Server/API performance metrics
+  totalRequests: number;
+  successfulRequests: number;
+  failedRequests: number;
+  errorRate: number; // percentage
+  responseTimes: {
+    avg: number;
+    p50: number;
+    p95: number;
+    p99: number;
+    max: number;
+  };
+  uptime: number; // seconds
+  requestsOverTime: Array<{
+    timestamp: string;
+    requests: number;
+    errors: number;
+  }>;
+  requestsByEndpoint: Array<{
+    endpoint: string;
+    count: number;
+    requests: number;
+    avgResponseTime: number;
+    errorRate: number;
+  }>;
+  serverHealth: {
+    cpu: number;
+    memory: number;
+    disk: number;
+    network: number;
+  };
+  errorsByType: Array<{
+    type: string;
+    count: number;
+    percentage: number;
+    lastOccurrence: string;
+  }>;
 }
 
 export interface TickRate {

@@ -310,6 +310,42 @@ export const mockDataService = {
       activeConflicts,
       recentTreaties,
       relationshipMatrix,
+      // Battle-related metrics
+      totalBattles: random(5000, 15000),
+      activeBattles: random(10, 50),
+      playerVictories: random(3000, 9000),
+      averageDuration: random(180, 600), // seconds
+      damageDistribution: {
+        physical: random(1000000, 5000000),
+        magical: random(800000, 4000000),
+        elemental: random(600000, 3000000),
+        true: random(200000, 1000000),
+        total: random(3200000, 13000000),
+      },
+      battlesByType: [
+        { type: 'PvE', count: random(2000, 6000), winRate: randomFloat(60, 85), averageDuration: random(180, 400) },
+        { type: 'PvP', count: random(800, 2000), winRate: randomFloat(45, 55), averageDuration: random(120, 300) },
+        { type: 'Boss', count: random(200, 800), winRate: randomFloat(30, 60), averageDuration: random(300, 900) },
+        { type: 'Raid', count: random(100, 400), winRate: randomFloat(40, 70), averageDuration: random(600, 1800) },
+      ],
+      skillUsage: [
+        { skillName: 'Fireball', uses: random(5000, 15000), usageCount: random(5000, 15000), averageDamage: random(200, 500), hitRate: randomFloat(65, 85) },
+        { skillName: 'Lightning Strike', uses: random(4000, 12000), usageCount: random(4000, 12000), averageDamage: random(250, 550), hitRate: randomFloat(60, 80) },
+        { skillName: 'Healing Wave', uses: random(6000, 18000), usageCount: random(6000, 18000), averageDamage: 0, hitRate: randomFloat(85, 95) },
+        { skillName: 'Sword Slash', uses: random(8000, 20000), usageCount: random(8000, 20000), averageDamage: random(150, 350), hitRate: randomFloat(70, 90) },
+        { skillName: 'Shield Bash', uses: random(3000, 10000), usageCount: random(3000, 10000), averageDamage: random(100, 250), hitRate: randomFloat(75, 88) },
+      ],
+      recentBattles: Array.from({ length: 10 }, (_, i) => ({
+        id: `battle-${i}`,
+        type: randomItem(['PvE', 'PvP', 'Boss', 'Raid']),
+        participants: [randomItem(characterNames), randomItem(characterNames)],
+        winner: randomItem(characterNames),
+        location: randomItem(cityNames),
+        outcome: randomItem(['Victory', 'Defeat', 'Draw']),
+        duration: random(120, 900),
+        totalDamage: random(5000, 100000),
+        timestamp: new Date(Date.now() - random(0, 86400000)).toISOString(),
+      })),
     };
   },
 
@@ -654,6 +690,37 @@ export const mockDataService = {
           { entity: 'Merchant\'s Guild', questsGenerated: random(20, 45) },
         ],
       },
+      // Player activity metrics
+      activePlayers: random(50, 200),
+      totalSessions: random(100, 500),
+      newPlayers: random(10, 50),
+      averageSessionDuration: random(30, 180), // minutes
+      topPlayers: Array.from({ length: 10 }, (_, i) => ({
+        username: `Player${1000 + i}`,
+        characterName: randomItem(characterNames),
+        level: random(40, 100),
+        playtime: random(100, 5000),
+        achievements: random(10, 200),
+        lastSeen: new Date(Date.now() - random(0, 86400000)).toISOString(),
+      })),
+      activityByHour: Array.from({ length: 24 }, (_, hour) => ({
+        hour: `${hour}:00`,
+        timestamp: new Date(Date.now() - (23 - hour) * 3600000).toISOString(),
+        activePlayers: random(20, 150),
+        newSessions: random(5, 40),
+      })),
+      recentSessions: Array.from({ length: 10 }, (_, i) => ({
+        id: `session-${i}`,
+        username: `Player${random(1000, 9999)}`,
+        character: randomItem(characterNames),
+        characterName: randomItem(characterNames),
+        level: random(10, 100),
+        region: randomItem(regions),
+        loginTime: new Date(Date.now() - random(0, 14400000)).toISOString(),
+        duration: random(15, 240),
+        actions: random(10, 500),
+        status: randomItem(['Active', 'Idle', 'Disconnected']),
+      })),
     };
   },
 
@@ -707,6 +774,44 @@ export const mockDataService = {
           impact: 'Minor performance impact when many entities travel simultaneously',
           recommendation: 'Implement path caching for common routes',
         },
+      ],
+      // Server/API performance metrics
+      totalRequests: random(50000, 150000),
+      successfulRequests: random(48000, 145000),
+      failedRequests: random(500, 2000),
+      errorRate: randomFloat(0.5, 3.5),
+      responseTimes: {
+        avg: random(80, 150),
+        p50: random(60, 100),
+        p95: random(150, 300),
+        p99: random(300, 600),
+        max: random(800, 2000),
+      },
+      uptime: random(86400, 2592000), // 1-30 days in seconds
+      requestsOverTime: Array.from({ length: 24 }, (_, hour) => ({
+        timestamp: new Date(Date.now() - (23 - hour) * 3600000).toISOString(),
+        requests: random(1000, 5000),
+        errors: random(10, 100),
+      })),
+      requestsByEndpoint: [
+        { endpoint: '/api/characters', count: random(10000, 30000), requests: random(10000, 30000), avgResponseTime: random(50, 120), errorRate: randomFloat(0.1, 1.5) },
+        { endpoint: '/api/cities', count: random(8000, 25000), requests: random(8000, 25000), avgResponseTime: random(60, 140), errorRate: randomFloat(0.2, 2.0) },
+        { endpoint: '/api/factions', count: random(6000, 20000), requests: random(6000, 20000), avgResponseTime: random(70, 150), errorRate: randomFloat(0.1, 1.0) },
+        { endpoint: '/api/economy', count: random(5000, 18000), requests: random(5000, 18000), avgResponseTime: random(80, 160), errorRate: randomFloat(0.3, 2.5) },
+        { endpoint: '/api/events', count: random(12000, 35000), requests: random(12000, 35000), avgResponseTime: random(40, 100), errorRate: randomFloat(0.1, 0.8) },
+      ],
+      serverHealth: {
+        cpu: random(20, 70),
+        memory: random(40, 80),
+        disk: random(30, 60),
+        network: random(15, 50),
+      },
+      errorsByType: [
+        { type: 'Timeout', count: random(100, 500), percentage: randomFloat(15, 30), lastOccurrence: new Date(Date.now() - random(0, 3600000)).toISOString() },
+        { type: 'Database Connection', count: random(50, 200), percentage: randomFloat(10, 20), lastOccurrence: new Date(Date.now() - random(0, 7200000)).toISOString() },
+        { type: '500 Internal Server Error', count: random(80, 300), percentage: randomFloat(20, 35), lastOccurrence: new Date(Date.now() - random(0, 1800000)).toISOString() },
+        { type: '404 Not Found', count: random(200, 800), percentage: randomFloat(25, 45), lastOccurrence: new Date(Date.now() - random(0, 600000)).toISOString() },
+        { type: 'Rate Limit Exceeded', count: random(30, 150), percentage: randomFloat(5, 15), lastOccurrence: new Date(Date.now() - random(0, 900000)).toISOString() },
       ],
     };
   },
